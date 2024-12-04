@@ -73,9 +73,8 @@ export function handleOnClick(event) {
   if (closetsCard) handleOnCardClick(closetsCard);
 }
 export function handleReturnButton() {
-  getAllUsers().then((users) => {
-    insertUsersToDOM(users);
-  });
+  const users = getUserFromStorage();
+  insertUsersToDOM(users);
 }
 
 function insertLoaderToDOM() {
