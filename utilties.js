@@ -38,21 +38,29 @@ function createUserPage(user) {
 export async function getAllUsers() {
   const res = await fetch(baseURL + "/users");
   const users = await res.json();
-  saveUserToStorage(users);
+  saveUsersToStorage(users);
   return users;
 }
 
-function saveUserToStorage(user) {
-  localStorage.setItem("users", JSON.stringify(user));
+function saveUsersToStorage(users) {
+  console.log(users);
+  localStorage.setItem("users", JSON.stringify(users));
 }
 
-function getUserFromStorage() {
-  return JSON.parse(localStorage.getItem("users")) || getAllUsers();
+function getUsersFromStorage() {
+  return JSON.parse(localStorage.getItem("users"));
 }
 
 async function getUserById(userId) {
-  const res = await fetch(baseURL + `/users/${userId}`);
-  const user = await res.json();
+  console.log(userId);
+  const users = getUsersFromStorage();
+  console.log(users);
+  const user = users.find((i) => i.id === Number(userId));
+  console.log(user);
+
+  // const res = await fetch(baseURL + `/users/${userId}`);
+  // const user = await res.json();
+
   return user;
 }
 
@@ -72,8 +80,9 @@ export function handleOnClick(event) {
   const closetsCard = target.closest(".card");
   if (closetsCard) handleOnCardClick(closetsCard);
 }
+
 export function handleReturnButton() {
-  const users = getUserFromStorage();
+  const users = getUsersFromStorage();
   insertUsersToDOM(users);
 }
 
