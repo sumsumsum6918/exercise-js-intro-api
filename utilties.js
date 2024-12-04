@@ -38,7 +38,16 @@ function createUserPage(user) {
 export async function getAllUsers() {
   const res = await fetch(baseURL + "/users");
   const users = await res.json();
+  saveUserToStorage(users);
   return users;
+}
+
+function saveUserToStorage(user) {
+  localStorage.setItem("users", JSON.stringify(user));
+}
+
+function getUserFromStorage() {
+  return JSON.parse(localStorage.getItem("users")) || getAllUsers();
 }
 
 async function getUserById(userId) {
@@ -52,6 +61,9 @@ function handleOnCardClick(card) {
   getUserById(card.id).then((user) => {
     const userPageAsHtmlString = createUserPage(user);
     main.innerHTML = userPageAsHtmlString;
+
+    const button = document.getElementById("back-btn");
+    button.addEventListener("click", handleReturnButton);
   });
 }
 
@@ -59,6 +71,11 @@ export function handleOnClick(event) {
   const { target } = event;
   const closetsCard = target.closest(".card");
   if (closetsCard) handleOnCardClick(closetsCard);
+}
+export function handleReturnButton() {
+  getAllUsers().then((users) => {
+    insertUsersToDOM(users);
+  });
 }
 
 function insertLoaderToDOM() {
