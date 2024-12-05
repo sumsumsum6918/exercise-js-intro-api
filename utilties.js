@@ -1,6 +1,11 @@
 import { loader, main } from "./index.js";
+import {
+  saveUsersToStorage,
+  getUsersFromStorage,
+  getAllPosts,
+} from "./storage.js";
 
-const baseURL = "https://jsonplaceholder.typicode.com";
+export const baseURL = "https://jsonplaceholder.typicode.com";
 
 function createUserCard(user) {
   const card = /*html*/ `
@@ -28,11 +33,24 @@ function createUserPage(user) {
       </div>
       <div class="actions">
         <button id="back-btn">Back to user list</button>
+        <button id="post-btn">Show posts</button>
+      </div>
+      <div class="posts hide">
       </div>
     </section>
   `;
 
   return userPage;
+}
+
+function createPosts(userPosts) {
+  const postHTML = `
+  <article class="post">
+    <h3 class="post-title">${userPosts.title}</h3>
+    <p class="post-body">${userPosts.body}</p>
+  </article>
+  `;
+  return postHTML;
 }
 
 export async function getAllUsers() {
@@ -42,37 +60,39 @@ export async function getAllUsers() {
   return users;
 }
 
-function saveUsersToStorage(users) {
-  console.log(users);
-  localStorage.setItem("users", JSON.stringify(users));
-}
-
-function getUsersFromStorage() {
-  return JSON.parse(localStorage.getItem("users"));
-}
-
-async function getUserById(userId) {
-  console.log(userId);
+function getUserById(userId) {
   const users = getUsersFromStorage();
-  console.log(users);
   const user = users.find((i) => i.id === Number(userId));
-  console.log(user);
-
-  // const res = await fetch(baseURL + `/users/${userId}`);
-  // const user = await res.json();
 
   return user;
 }
 
-function handleOnCardClick(card) {
+async function handleOnCardClick(card) {
   insertLoaderToDOM();
-  getUserById(card.id).then((user) => {
-    const userPageAsHtmlString = createUserPage(user);
-    main.innerHTML = userPageAsHtmlString;
+  const user = getUserById(card.id);
 
-    const button = document.getElementById("back-btn");
-    button.addEventListener("click", handleReturnButton);
-  });
+  const userPageAsHtmlString = createUserPage(user);
+  main.innerHTML = userPageAsHtmlString;
+
+  await getPosts(user);
+
+  const backButton = document.getElementById("back-btn");
+  backButton.addEventListener("click", handleReturnButton);
+
+  const showPostButton = document.getElementById("post-btn");
+  showPostButton.addEventListener("click", togglePosts);
+}
+
+async function getPosts(user) {
+  const posts = await getAllPosts();
+
+  const userPosts = posts.filter((post) => post.userId === user.id);
+
+  insertPostToDOM(userPosts);
+}
+
+function togglePosts() {
+  document.querySelector(".posts").classList.toggle("hide");
 }
 
 export function handleOnClick(event) {
@@ -81,7 +101,7 @@ export function handleOnClick(event) {
   if (closetsCard) handleOnCardClick(closetsCard);
 }
 
-export function handleReturnButton() {
+function handleReturnButton() {
   const users = getUsersFromStorage();
   insertUsersToDOM(users);
 }
@@ -93,4 +113,12 @@ function insertLoaderToDOM() {
 export function insertUsersToDOM(users) {
   const usersAsHtmlString = users.map((user) => createUserCard(user)).join("");
   main.innerHTML = usersAsHtmlString;
+}
+
+function insertPostToDOM(userPosts) {
+  const userPostsAsHTMLString = userPosts
+    .map((post) => createPosts(post))
+    .join("");
+
+  document.querySelector(".posts").innerHTML = userPostsAsHTMLString;
 }

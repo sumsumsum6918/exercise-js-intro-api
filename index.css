@@ -17,12 +17,17 @@ main {
   grid-template-columns: 1fr 1fr 1fr;
 }
 
-.card {
+.card,
+.post {
   border-radius: 0.5rem;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   cursor: pointer;
   padding: 1rem;
   text-align: center;
+}
+.post {
+  cursor: none;
+  margin-top: 1rem;
 }
 
 .card:hover {
@@ -48,6 +53,9 @@ main {
   background-image: radial-gradient(circle closest-side, #fff 94%, #000);
   -webkit-background-clip: text;
   background-clip: text;
+}
+.hide {
+  display: none;
 }
 
 @keyframes l24 {
